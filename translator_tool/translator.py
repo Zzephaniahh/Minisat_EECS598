@@ -1,8 +1,8 @@
-# global counter to track used integers
-# the gate dict will be of the form: {output, {inputs}}
-import time
+# Zephaniah Hill
+# The University of Michigan -- EECS 598
+# June 28, 2018
 
-class parser():
+class parser(): # takes the ISCAS 89 file as input and finds all input output pairs
     def __init__(self):
         self.filename = "filename here"
         self.gate_dict = {}
@@ -23,14 +23,15 @@ class parser():
 
 
 class gate():
+    # given pairs (input_set,output) and a gate type, a CNF formul is generated and written to the file
     def __init__(self, inputs, global_label_counter, file_name):
         self.inputs = inputs
-        self.global_label_counter = global_label_counter
+        self.global_label_counter = global_label_counter # need to maintain a global counter so minisat always makes a new variable for a new input
         self.endline = ' '+str(0) # space 0 to end the line
         self.filename = file_name
 
 
-    def AND(self): # we want (~out+in_i)*(~[in_i]+out)
+    def AND(self):
         with open(self.filename, 'a') as f:
             DIMACS_string_subterm = ""
             DIMACS_string_all_var_term = ""
@@ -118,8 +119,7 @@ class gate():
             return self.global_label_counter
 
 
-
-class circuit():
+class circuit(): # builds a CNF representation of the circuit from the output of the parser
     def __init__(self, gate_dict, global_label_counter, file_name):
         self.gate_dict = gate_dict
         self.global_label_counter = global_label_counter
@@ -134,7 +134,9 @@ class circuit():
             current_gate = gate(inputs, self.global_label_counter, self.file_name)
             # find gate type and build the CNF formula
             if gate_type == "AND":
-                 # note, there's no need to pass output because all gates have 1 output
+                 # note, there's no need to pass output because all gates have 1 output, and outputs are unique
+                 # Is this true? ^ maybe not wise because an output may be listed as an input prior to the output def.
+                 # I think I should add a dict: var dict[var_name] = {var_integer} to check this.
                  # so the counter is simply incremented by 1.
                 self.global_label_counter = current_gate.AND()
 
@@ -148,23 +150,31 @@ class circuit():
                 self.global_label_counter = current_gate.NOR()
 
 
-
-
-
-
 def main():
-    global_label_counter = 1
-    par = parser()
-    gate_dict = par.parse()
-    file_name = "test.txt"
-    mycir = circuit(gate_dict, global_label_counter, file_name)
-    mycir.build()
+    global_label_counter = 1 # labels for DIMACS start at 1 because 0 is the endline character
+    par = parser() # initalize the parser class
+    gate_dict = par.parse() # use the class to get the input output pairs
+
+    file_name = "test.txt" # the file which the DIMACS formula will be written to
+
+    mycir = circuit(gate_dict, global_label_counter, file_name) # instantiate the circuit class
+    mycir.build() # use the build method to generate a DIMACS CNF representation of the input output pairs in "gate_dict"
 
 
 
 if __name__ == '__main__':
-    import re
-    import sys
+    import re # used for parsing
+    import sys # used for everything
 
 
     main()
+
+
+    """
+    TODO:
+     Add more logic functions if needed.
+     Handle NOT cases.
+     Add initializing line.
+     Add the ability to unroll.
+     Check variable integer to name mapping using dict.
+     """
