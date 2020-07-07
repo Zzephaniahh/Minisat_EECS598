@@ -30,8 +30,6 @@ class horn_clause_generator:
         return horn_formula # return a horn variable with all possible permutations on N variables
 
 
-
-
 def main():
 
     variable_size_list = [10, 100, 1000] # each item in this list is used to generate a horn variable of that size
@@ -56,8 +54,6 @@ def main():
         time_diff = avg_time_for_variable_size_set[index+1]/time
 
         print "\n" "It takes ", time_diff, " times longer to compute", variable_size_list[index+1], " variables than ", variable_size_list[index], " variables"
-
-        #TODO: change to variables
 
 
 if __name__ == '__main__':
