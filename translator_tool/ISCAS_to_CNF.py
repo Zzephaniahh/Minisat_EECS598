@@ -55,6 +55,8 @@ class CNF_conversion(): # used to generate a Symbolic CNF file. An IR for use in
 
     def AND(self):
         self.file_ID = open(self.file_name, "a")
+        self.file_ID.write( "# "+ self.output + " = " + self.gate_type +  str(self.input_set) + "\n") # set comments
+
         all_variable_forumula = ""
         for input in self.input_set:
         # CNF formula representing: (!f + a) * (!f + b) ...
@@ -65,6 +67,8 @@ class CNF_conversion(): # used to generate a Symbolic CNF file. An IR for use in
 
     def OR(self):
         self.file_ID = open(self.file_name, "a")
+        self.file_ID.write( "# "+ self.output + " = " + self.gate_type +  str(self.input_set) + "\n") # set comments
+
         all_variable_forumula = ""
         for input in self.input_set:
         # CNF formula representing: (~a + f) *(~b + f) ...
@@ -78,7 +82,7 @@ class CNF_conversion(): # used to generate a Symbolic CNF file. An IR for use in
 
     def XOR(self):
         self.file_ID = open(self.file_name, "a")
-
+        self.file_ID.write( "# "+ self.output + " = " + self.gate_type +  str(self.input_set) + "\n") # set comments
         all_variable_forumula = ""
         for input in self.input_set:
         # CNF formula representing: (~a + f) *(~b + f) ...
@@ -93,7 +97,7 @@ class CNF_conversion(): # used to generate a Symbolic CNF file. An IR for use in
 
     def NAND(self):
         self.file_ID = open(self.file_name, "a")
-
+        self.file_ID.write( "# "+ self.output + " = " + self.gate_type +  str(self.input_set) + "\n") # set comments
         all_variable_forumula = ""
         for input in self.input_set:
         # CNF formula representing: (f + a) * (f + b) ...
@@ -109,6 +113,7 @@ class CNF_conversion(): # used to generate a Symbolic CNF file. An IR for use in
     def NOR(self):
         self.file_ID = open(self.file_name, "a")
         all_variable_forumula = ""
+        self.file_ID.write( "# "+ self.output + " = " + self.gate_type +  str(self.input_set) + "\n") # set comments
         for input in self.input_set:
         # CNF formula representing: (~a + ~f) *(~b + ~f) ...
             if input in self.not_gate_dict:
@@ -121,8 +126,14 @@ class CNF_conversion(): # used to generate a Symbolic CNF file. An IR for use in
 
 
     def NOT(self):
+        self.file_ID = open(self.file_name, "a")
+        self.file_ID.write( "# "+ self.output + " = " + self.gate_type +  str(self.input_set) + "\n") # set comments
+
         for input in self.input_set:
-            self.not_gate_dict[self.output] = self.negate(input)
+            # DIMACS string representing (~f + ~a)
+            self.file_ID.write("(" + self.negate(input) + " + " + self.negate(self.output) + ")\n")
+            # DIMACS string representing (f + a)
+            self.file_ID.write("(" + input + " + " + self.output + ")\n")
 
 
     def negate(self, variable):
@@ -172,13 +183,14 @@ class CNF_conversion(): # used to generate a Symbolic CNF file. An IR for use in
 
 
 def main():
+
     ###############################
-    INPUT_FILE = "s208.1.isc"
+    INPUT_FILE = str(sys.argv[1]) # "s27.isc"
     ###############################
 
 
     ###############################
-    OUTPUT_FILE = "output_test.cnf"
+    OUTPUT_FILE = str(sys.argv[2]) # "output_test.cnf"
     ###############################
 
     gate_dict, output_set = parser(INPUT_FILE).parse()
